@@ -1,0 +1,30 @@
+/* ===== ProKuiz TV — paparan untuk Android TV (alat kawalan jauh / D-pad) ===== */
+html.tv{ --tv-ring:#FFB800; }
+html.tv body{ cursor:none; }
+/* Kawasan selamat skrin TV (overscan) + lebar lebih besar untuk skrin landskap */
+html.tv .wrap{ max-width:min(1180px, 100%); padding-inline:max(48px, 5vw); padding-block:max(24px, 4vh) max(40px, 6vh); }
+html.tv .gate{ padding:5vh 5vw; }
+
+/* Fokus jelas dari jauh */
+html.tv :focus{ outline:none; }
+html.tv .tv-focus,
+html.tv :focus-visible{
+  outline:5px solid var(--tv-ring) !important; outline-offset:4px !important;
+  box-shadow:0 0 0 9px rgba(31,42,68,.9), 0 10px 26px rgba(0,0,0,.35) !important;
+  transition:box-shadow .12s ease;
+}
+
+/* Buang semua ciri menulis / melukis / merakam */
+html.tv .padbtn, html.tv #padHost, html.tv #traceHost,
+html.tv [data-pk="c"], html.tv #toEssayBtn, html.tv #essay,
+html.tv #voiceOpen, html.tv #voice, html.tv .recbtn, html.tv [data-act="rec"]{ display:none !important; }
+
+/* Pilihan jawapan lebih besar & 2 lajur di skrin lebar */
+html.tv .opts{ grid-template-columns:repeat(2, minmax(0,1fr)) !important; gap:14px; }
+html.tv .opts.long{ grid-template-columns:minmax(0,1fr) !important; }
+html.tv .opt{ min-height:72px; }
+
+/* Petunjuk kawalan jauh */
+.tv-help{ display:none; }
+html.tv .tv-help{ display:flex; gap:18px; flex-wrap:wrap; justify-content:center; margin:18px 0 0; color:var(--ink-soft, #555); font-size:14px; }
+html.tv .tv-help b{ display:inline-block; min-width:26px; padding:1px 7px; border:2px solid currentColor; border-radius:7px; text-align:center; margin-right:4px; }

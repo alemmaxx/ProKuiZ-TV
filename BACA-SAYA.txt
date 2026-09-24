@@ -1,0 +1,77 @@
+PROKUIZ TV — 4 APP UNTUK ANDROID TV / TV BOX
+=============================================
+
+Repo ini membina 4 APK TV sekali gus:
+  • ProKuiz Bijak TV        (com.prokuiz.bijak.tv)
+  • ProKuiz Intelek TV      (com.prokuiz.intelek.tv)
+  • ProKuiz IntelekPro TV   (com.prokuiz.intelekpro.tv)
+  • ProKuiz Iqra Junior TV  (com.prokuiz.iqrajunior.tv)
+
+App TV ialah app BERASINGAN. App telefon tidak terjejas, dan kedua-duanya
+boleh dipasang serentak.
+
+
+APA YANG BERBEZA DI TV
+----------------------
+✔ Guna alat kawalan jauh: ▲▼◀▶ untuk gerak, OK untuk pilih, Back untuk kembali.
+✔ Butang nombor 1–4 pada remote = jawapan A–D.
+✔ Tekan Back 2 kali di laman utama untuk keluar app.
+✔ Paparan landskap yang disesuaikan untuk skrin TV, dengan bingkai fokus kuning yang jelas.
+✔ Nama murid diisi automatik ("Murid"), jadi tidak perlu menaip.
+✘ TIADA aktiviti menulis:
+    - Subjek "Surih Huruf & Nombor" (Bijak Prasekolah) dibuang
+    - Subjek "Surih & Tulis" (Iqra Junior) dibuang
+    - Papan "Conteng" dibuang
+    - PKSK Bahagian C (Esei) dibuang
+    - Rakam suara guru / ibu bapa dibuang (TV biasanya tiada mikrofon)
+✔ Kata laluan masih diminta sekali: prokuiz2026
+
+
+CARA BINA APK (sekali setup)
+----------------------------
+1. Di GitHub, buat repo baharu, contohnya "ProKuiz-TV" (boleh private).
+2. Upload SEMUA isi folder ini ke repo tersebut.
+   PENTING — fail workflow:
+   Cara paling senang: extract ProKuiz-TV.zip, kemudian upload isi folder
+   tersebut (folder .github sudah ada di dalamnya).
+   Jika folder .github tiada: di GitHub tekan Add file → Create new file,
+   namakan  .github/workflows/bina-tv.yml  dan paste isi fail
+   "WORKFLOW-bina-tv.yml", kemudian tekan Commit.
+3. Pergi ke repo → Settings → Secrets and variables → Actions → New repository secret.
+   Tambah 2 secret (nilai SAMA seperti projek Google Play):
+     KEYSTORE_BASE64   = isi fail "KEYSTORE_BASE64.txt"
+     KEYSTORE_PASSWORD = isi fail "KEYSTORE_PASSWORD.txt"
+   (Kedua-dua fail ada dalam folder "02 - Kunci tandatangan (RAHSIA)")
+4. Pergi ke tab Actions → "Bina ProKuiz TV (4 app)" → Run workflow.
+5. Tunggu lebih kurang 10 minit. Di bahagian bawah halaman keputusan ada 4 fail:
+     ProKuiz-Bijak-TV, ProKuiz-Intelek-TV, ProKuiz-IntelekPro-TV, ProKuiz-Iqra-Junior-TV
+   Setiap satu mengandungi .apk (pasang terus) dan .aab (untuk Play Store).
+
+
+CARA PASANG DI TV / TV BOX
+--------------------------
+Cara A — Pendrive:
+  1. Salin fail .apk ke pendrive, cucuk ke TV box.
+  2. Buka app pengurus fail di TV (contoh: "File Commander" / "X-plore"), tekan fail .apk.
+  3. Benarkan "Install unknown apps" untuk app pengurus fail itu, kemudian Install.
+Cara B — App "Downloader" (by AFTVnews) di TV:
+  1. Pasang "Downloader" dari Play Store di TV.
+  2. Masukkan link download APK (contoh link Google Drive / GitHub Release).
+App akan muncul di skrin utama TV dengan banner ProKuiz.
+
+
+BILA APP TELEFON DIKEMAS KINI (soalan baharu dan sebagainya)
+------------------------------------------------------------
+Salin fail www/index.html dari projek telefon ke:
+    apps/<nama-app>/www/index.html
+Contoh: index.html ProKuiz Bijak → apps/bijak/www/index.html
+Kemudian upload ke GitHub. Lapisan TV dipasang automatik semasa bina,
+jadi TIDAK perlu ubah apa-apa dalam index.html.
+
+
+FAIL PENTING
+------------
+shared/tv.js, shared/tv.css   Lapisan TV (kawalan jauh, buang aktiviti menulis)
+scripts/tv-patch.js           Sambung lapisan TV ke index.html semasa bina
+scripts/android-patch.js      Tetapan Android TV (launcher TV, banner, tanpa skrin sentuh)
+apps/*/assets/tv-banner-1280.png   Banner 1280x720 untuk Google Play (Android TV)

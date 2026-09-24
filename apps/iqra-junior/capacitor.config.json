@@ -1,0 +1,8 @@
+{
+  "appId": "com.prokuiz.iqrajunior.tv",
+  "appName": "ProKuiz Iqra Junior TV",
+  "webDir": "www",
+  "android": {
+    "backgroundColor": "#FFF3C9"
+  }
+}
