@@ -366,12 +366,50 @@
   .backbtn svg{width:20px; height:20px}
   /* ===== Skrin utama padat di skrin landskap rendah (TV): 2 lajur, muat satu skrin ===== */
   @media (orientation: landscape) and (min-width:700px) and (max-height:820px){
-    body[data-screen="home"] .wrap{max-width:1500px; padding:1.8vh 2.5vw 1vh}
-    body[data-screen="home"] .bar{margin-bottom:1.6vh}
-    body[data-screen="home"] .brand .logo{width:6.5vh; height:6.5vh}
-    body[data-screen="home"] .brand h1{font-size:clamp(16px,4vh,32px)}
-    body[data-screen="home"] .brand small{font-size:clamp(11px,2.2vh,18px)}
-    body[data-screen="home"] .iconbtn, body[data-screen="home"] .langsw button{font-size:clamp(12px,2.4vh,18px); padding:.8vh 1vw}
+    body:not([data-screen="quiz"]) .wrap{max-width:1500px; padding:1.8vh 2.5vw 1vh}
+    body:not([data-screen="quiz"]) .bar{margin-bottom:1.6vh}
+    body:not([data-screen="quiz"]) .brand .logo{width:6.5vh; height:6.5vh}
+    body:not([data-screen="quiz"]) .brand h1{font-size:clamp(16px,4vh,32px)}
+    body:not([data-screen="quiz"]) .brand small{font-size:clamp(11px,2.2vh,18px)}
+    body:not([data-screen="quiz"]) .iconbtn, body:not([data-screen="quiz"]) .langsw button{font-size:clamp(12px,2.4vh,18px); padding:.8vh 1vw}
+    /* Keputusan: kiri = markah & butang, kanan = semakan jawapan (boleh skrol) */
+    #result .result{height:calc(100vh - 12.5vh); grid-template-columns:minmax(0,40fr) minmax(0,60fr); grid-template-rows:repeat(7,auto) minmax(0,1fr); column-gap:2.6vw; row-gap:1.2vh; padding:2.2vh 2vw; align-content:start; border-radius:20px; box-shadow:0 5px 0 var(--ink)}
+    #result .result > *{grid-column:1}
+    #result .result > .review{grid-column:2; grid-row:1 / -1; align-self:stretch; overflow:auto; margin:0; min-height:0; padding-right:.4vw; display:flex; flex-direction:column; gap:1vh}
+    #result .result h2{font-size:clamp(18px,4.6vh,40px)}
+    #result .stars svg{width:clamp(34px,8.5vh,80px); height:clamp(34px,8.5vh,80px)}
+    #result .score{font-size:clamp(34px,10vh,90px)}
+    #result .score small{font-size:clamp(16px,4.4vh,40px)}
+    #result .rmeta{font-size:clamp(12px,2.5vh,20px)}
+    #result .saved{font-size:clamp(10px,2vh,16px)}
+    #result .actions{gap:1vh .8vw}
+    #result .actions .btn{font-size:clamp(13px,2.8vh,24px); padding:1vh 1.6vw; border-radius:14px}
+    #result .review h3{font-size:clamp(13px,2.8vh,22px)}
+    #result .rv{font-size:clamp(11px,2.3vh,18px); padding:1vh .9vw; border-radius:12px}
+    #result .rvx summary{font-size:clamp(11px,2.2vh,17px)}
+    #result .ex{font-size:clamp(11px,2.2vh,17px)}
+    /* Rekod: kiri = penapis, kanan = ringkasan + jadual (boleh skrol) */
+    #records{display:grid; grid-template-columns:minmax(0,32fr) minmax(0,68fr); grid-template-rows:auto auto minmax(0,1fr) auto; column-gap:2vw; height:calc(100vh - 12.5vh)}
+    #records .quitrow{grid-column:1; grid-row:4; margin:1vh 0 0}
+    #records #clearBtn{font-size:clamp(11px,2.2vh,17px)!important; padding:.7vh 1.2vw!important}
+    #records .rec-head{grid-column:1 / -1; margin-bottom:1.2vh; align-items:center}
+    #records .rec-head h2{font-size:clamp(16px,4vh,34px)}
+    #records .rec-note{font-size:clamp(10px,2vh,16px); margin:0}
+    #records #recBack{font-size:clamp(12px,2.4vh,20px)!important; padding:.7vh 1.4vw!important}
+    #records .filters{grid-column:1; grid-row:2 / span 2; overflow:auto; align-content:start; margin:0; gap:.8vh .5vw; min-height:0; padding:.3vh .2vw}
+    #records .frow{gap:.6vh .4vw}
+    #records .fchip{font-size:clamp(10px,1.9vh,15px); padding:.4vh .7vw}
+    #records .search{font-size:clamp(11px,2vh,16px); padding:.6vh .8vw}
+    #records .summary{grid-column:2; grid-row:2; margin-bottom:1.2vh; gap:1vw}
+    #records .sum{padding:.8vh .9vw; border-radius:12px}
+    #records .sum .v{font-size:clamp(15px,3.4vh,28px)}
+    #records .sum .l{font-size:clamp(10px,1.8vh,14px)}
+    #records .tablewrap{grid-column:2; grid-row:3 / span 2; overflow:auto; min-height:0; border-radius:14px}
+    #records table{min-width:100%; font-size:clamp(10px,2vh,16px)}
+    #records th{font-size:clamp(9px,1.7vh,13px); padding:.8vh .7vw}
+    #records td{padding:.7vh .7vw}
+    #records .pill{font-size:clamp(9px,1.7vh,13px)}
+    #records .mini-stars{font-size:clamp(11px,2.1vh,16px)}
     #home{display:grid; grid-template-columns:minmax(0,33fr) minmax(0,67fr); column-gap:2.4vw; align-items:start; height:calc(100vh - 12vh)}
     #home > *{grid-column:1; margin-top:0}
     #home > #subjTitle{grid-column:2; grid-row:1; align-self:start; margin:0; line-height:1.2}
@@ -659,7 +697,10 @@ const shuffle = a => { a = a.slice(); for(let i=a.length-1;i>0;i--){const j=Math
 const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const fmt = s => `${Math.floor(s/60)}:${String(s%60).padStart(2,"0")}`;
 const starsFor = n => n>=9?3:n>=6?2:n>=3?1:0;
-function show(id){ document.body.dataset.screen = id; ["home","quiz","result","records","pksk","essay","voice"].forEach(s => $(s).hidden = s!==id); try{ stopSay(); }catch(e){} window.scrollTo({top:0}); }
+function show(id){ document.body.dataset.screen = id; ["home","quiz","result","records","pksk","essay","voice"].forEach(s => $(s).hidden = s!==id); try{ stopSay(); }catch(e){} window.scrollTo({top:0});
+  // TV: jika kursor hilang selepas tukar skrin, letak pada butang pertama skrin itu
+  setTimeout(() => { try{ if(!IS_TV) return; const a = document.activeElement;
+    if(!a || a === document.body || a.closest("[hidden]")){ const f = $(id).querySelector(".subj, .btn:not([hidden]), button:not([disabled]):not([hidden])"); if(f) f.focus({ preventScroll:true }); } }catch(e){} }, 60); }
 function lsGet(k,d){ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):d; }catch(e){ return d; } }
 function lsSet(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
 /* ---------- dwibahasa / bilingual ---------- */
