@@ -1,0 +1,116 @@
+name: Bina semua app ProKuiz
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  bina:
+    name: ${{ matrix.app }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        app: [bijak, intelek, intelekpro, iqra-junior]
+    defaults:
+      run:
+        working-directory: apps/${{ matrix.app }}
+    env:
+      KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+      KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Sediakan fail kongsi
+        run: |
+          cp ../../.npmrc .npmrc
+          mkdir -p scripts && cp ../../scripts/*.js scripts/
+          if [ -n "$KEYSTORE_BASE64" ] && [ -n "$KEYSTORE_PASSWORD" ]; then
+            echo "MODE=release" >> $GITHUB_ENV; echo "Kunci dijumpai: APK release (kunci tetap)"
+          else
+            echo "MODE=debug" >> $GITHUB_ENV; echo "::warning::Tiada kunci dalam Secrets: APK debug dibina"
+            unset KEYSTORE_PASSWORD
+          fi
+
+      - name: Pasang Capacitor
+        run: npm install
+
+      - name: Simpan fon dalam app
+        run: node scripts/fonts-offline.js
+
+      - name: Sediakan projek Android
+        run: |
+          [ "$MODE" = "release" ] || export KEYSTORE_PASSWORD=
+          npx cap add android
+          node scripts/android-patch.js
+          npx cap sync android
+
+      - name: Jana ikon app
+        continue-on-error: true
+        run: npx capacitor-assets generate --android --iconBackgroundColor "#FFF3C9" --splashBackgroundColor "#FFF3C9"
+
+      - name: Pasang kunci tandatangan
+        if: env.MODE == 'release'
+        run: echo "$KEYSTORE_BASE64" | base64 -d > android/app/prokuiz-upload.jks
+
+      - name: Bina APK telefon
+        run: |
+          NAMA=$(node -p "require('./capacitor.config.json').appName.replace(/\s+/g,'-')")
+          VER=$(node -p "require('./package.json').version")
+          LABEL="$NAMA-v$VER-b$GITHUB_RUN_NUMBER"
+          echo "LABEL=$LABEL" >> $GITHUB_ENV
+          mkdir -p ../../hasil
+          cd android && chmod +x gradlew
+          if [ "$MODE" = "release" ]; then
+            ./gradlew bundleRelease assembleRelease
+            cp app/build/outputs/bundle/release/*.aab "../../../hasil/$LABEL-PlayStore.aab"
+            cp app/build/outputs/apk/release/*.apk "../../../hasil/$LABEL.apk"
+          else
+            ./gradlew assembleDebug
+            cp app/build/outputs/apk/debug/app-debug.apk "../../../hasil/$LABEL.apk"
+          fi
+
+      - name: Bina APK TV
+        run: |
+          node scripts/tv-patch.js
+          cd android
+          if [ "$MODE" = "release" ]; then
+            ./gradlew assembleRelease
+            cp app/build/outputs/apk/release/*.apk "../../../hasil/$LABEL-TV.apk"
+          else
+            ./gradlew assembleDebug
+            cp app/build/outputs/apk/debug/app-debug.apk "../../../hasil/$LABEL-TV.apk"
+          fi
+          ls -l ../../../hasil
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.LABEL }}
+          path: hasil/
+
+  gabung:
+    name: Gabung semua APK
+    needs: bina
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: semua
+          merge-multiple: true
+
+      - run: ls -l semua
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ProKuiz-SEMUA-b${{ github.run_number }}
+          path: semua/
