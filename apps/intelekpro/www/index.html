@@ -353,6 +353,10 @@
   }
   /* TV: tiada conteng, surih, tulis dengan pen atau rakam suara */
   .tv .padbtn, .tv #padHost, .tv #eModes [data-m="pen"], .tv #voiceOpen{display:none!important}
+  .qleft{display:inline-flex; align-items:center; gap:8px; min-width:0}
+  .backbtn{flex:none; width:40px; height:40px; border-radius:50%; border:2px solid var(--ink); background:var(--paper); color:var(--ink); display:grid; place-items:center; padding:0; box-shadow:0 3px 0 var(--ink)}
+  .backbtn:active{transform:translateY(2px); box-shadow:0 1px 0 var(--ink)}
+  .backbtn svg{width:20px; height:20px}
 </style>
 
 <div class="gate" id="gate" hidden>
@@ -366,6 +370,12 @@
     <p class="err" id="gateErr" role="alert"></p>
     <button class="btn" type="submit" data-t>Masuk</button>
   </form>
+</div>
+<div class="gate" id="exitDlg" hidden>
+  <div class="card" role="dialog" aria-modal="true" aria-labelledby="exitTitle">
+    <h2 id="exitTitle" data-t>Keluar dari app?</h2>
+    <div class="pwrow"><button class="btn ghost" id="exitNo" type="button" data-t>Tidak</button><button class="btn" id="exitYes" type="button" data-t>Ya</button></div>
+  </div>
 </div>
 </head>
 <body>
@@ -411,7 +421,7 @@
   <section id="quiz" hidden>
     <div class="qhead">
       <div class="qmeta">
-        <span class="tag" id="qSubj">Matematik</span>
+        <span class="qleft"><button class="backbtn" id="qBack" type="button" aria-label="Kembali" title="Kembali"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button><span class="tag" id="qSubj">Matematik</span></span>
         <span class="clock" id="clock"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/></svg><span id="clockTxt">10:00</span></span>
       </div>
       <div class="timebar"><i id="timeFill"></i></div>
@@ -913,7 +923,7 @@ if(AUD){
   $("gateName").textContent = APP.name;
   const logo = document.querySelector(".brand .logo rect"); if(logo) g.querySelector(".glogo rect").setAttribute("fill", logo.getAttribute("fill"));
   applyStatic();
-  setTimeout(() => pw.focus(), 50);
+  if(!IS_TV) setTimeout(() => pw.focus(), 50); else setTimeout(() => pw.focus({ preventScroll:true }), 50);
   $("gateEye").onclick = () => { const show = pw.type === "password"; pw.type = show ? "text" : "password"; $("gateEye").textContent = L(show ? "Sorok" : "Tunjuk"); pw.focus(); };
   $("gateForm").onsubmit = e => {
     e.preventDefault(); const v = pw.value.trim();
@@ -1320,6 +1330,64 @@ $("eDone").onclick = () => {
   eFinish(false);
 };
 $("eQuit").onclick = () => confirm2($("eQuit"), "Berhenti", () => { clearInterval(eTimer); if(E) E.done = true; openPksk(); });
+
+/* ---------- butang Back (Android telefon & TV) ---------- */
+Object.assign(UI_EN, { "Keluar dari app?":"Exit the app?", "Ya":"Yes", "Tidak":"No" });
+let exitReturn = null;
+function askExit(){
+  exitReturn = document.activeElement; $("exitDlg").hidden = false; applyStatic();
+  setTimeout(() => $("exitNo").focus(), 30);
+}
+function closeExit(){ $("exitDlg").hidden = true; if(exitReturn && exitReturn.focus) try{ exitReturn.focus({ preventScroll:true }); }catch(e){} }
+$("exitNo").onclick = () => { closeExit(); sfx.tap(); };
+$("exitYes").onclick = () => {
+  const C = window.Capacitor;
+  if(C && typeof C.nativePromise === "function") C.nativePromise("App", "exitApp", {}).catch(() => {});
+  closeExit();
+};
+function appBack(){
+  if(!$("exitDlg").hidden){ closeExit(); return; }
+  try{ stopSay(); }catch(e){}
+  const scr = document.body.dataset.screen || "home";
+  if(!$("gate").hidden || scr === "home") return askExit();
+  if(scr === "quiz"){
+    if(S && !S.done){ S.done = true; clearInterval(timerId); }
+    if(S && S.back === "pksk") openPksk(); else { renderHome(); show("home"); }
+  }
+  else if(scr === "result") $("homeBtn").click();
+  else if(scr === "records") $("recBack").click();
+  else if(scr === "pksk") $("pkskBack").click();
+  else if(scr === "essay"){ clearInterval(eTimer); if(E) E.done = true; openPksk(); }
+  else if(scr === "voice") $("voiceBack").click();
+  else { renderHome(); show("home"); }
+  sfx.tap();
+  setTimeout(() => { const f = document.querySelector("section:not([hidden]) button:not([hidden]), section:not([hidden]) .subj"); if(IS_TV && f) f.focus({ preventScroll:true }); }, 30);
+}
+window.__appBack = appBack;
+$("qBack").onclick = () => appBack();
+(function(){
+  const C = window.Capacitor;
+  if(C && typeof C.nativeCallback === "function" && C.getPlatform && C.getPlatform() !== "web"){
+    try{ C.nativeCallback("App", "addListener", { eventName:"backButton" }, () => appBack()); }catch(e){}
+  }
+  // TV / papan kekunci: Escape = Back
+  document.addEventListener("keydown", e => { if(e.key === "Escape" || e.key === "GoBack" || e.key === "BrowserBack"){ if(document.activeElement && document.activeElement.matches("input,textarea") && !document.activeElement.readOnly) return; e.preventDefault(); appBack(); } });
+})();
+
+/* ---------- TV: papan kekunci hanya keluar bila kotak tulis ditekan ---------- */
+if(IS_TV){
+  const isField = el => el && el.matches && el.matches("input[type=text], input[type=password], input:not([type]), input[type=search], textarea");
+  const lock = el => { el.readOnly = true; el.dataset.tvlock = "1"; };
+  const unlock = el => { if(el.dataset.tvlock !== "1") return; delete el.dataset.tvlock; el.readOnly = false; el.dataset.refocus = "1"; el.blur(); setTimeout(() => { el.focus(); delete el.dataset.refocus; }, 0); };
+  document.querySelectorAll("input, textarea").forEach(el => { if(isField(el)) lock(el); });
+  document.addEventListener("focusin", e => { if(isField(e.target) && e.target.dataset.editing !== "1" && !e.target.readOnly) lock(e.target); }, true);
+  document.addEventListener("focusout", e => { if(isField(e.target) && e.target.dataset.refocus !== "1"){ delete e.target.dataset.editing; lock(e.target); } }, true);
+  document.addEventListener("keydown", e => {
+    const el = document.activeElement;
+    if(isField(el) && el.dataset.tvlock === "1" && (e.key === "Enter" || e.key === " " || e.keyCode === 23)){ e.preventDefault(); e.stopPropagation(); el.dataset.editing = "1"; unlock(el); }
+  }, true);
+  document.addEventListener("click", e => { if(isField(e.target) && e.target.dataset.tvlock === "1"){ e.target.dataset.editing = "1"; unlock(e.target); } }, true);
+}
 function eFinish(timeUp){
   if(E.done) return; E.done = true; clearInterval(eTimer);
   const pen = E.mode === "pen" && E.strokes.some(s => !s.e);
