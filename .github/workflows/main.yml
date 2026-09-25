@@ -82,6 +82,7 @@ jobs:
 
       - name: Bina APK TV
         run: |
+          if [ -d assets/tv ]; then cp assets/tv/*.png assets/ && (npx capacitor-assets generate --android --iconBackgroundColor "#FFF3C9" --splashBackgroundColor "#FFF3C9" || echo "ikon TV dilangkau"); fi
           node scripts/tv-patch.js
           cd android
           if [ "$MODE" = "release" ]; then
