@@ -32,7 +32,8 @@ jobs:
 
       - name: Sediakan fail kongsi
         run: |
-          cp ../../.npmrc .npmrc
+          echo "legacy-peer-deps=true" > .npmrc
+          if [ ! -f ../../scripts/android-patch.js ]; then echo "::error::Folder scripts tiada di repo. Upload folder scripts dari zip ProKuiz-Semua."; exit 1; fi
           mkdir -p scripts && cp ../../scripts/*.js scripts/
           if [ -n "$KEYSTORE_BASE64" ] && [ -n "$KEYSTORE_PASSWORD" ]; then
             echo "MODE=release" >> $GITHUB_ENV; echo "Kunci dijumpai: APK release (kunci tetap)"
@@ -100,7 +101,7 @@ jobs:
   gabung:
     name: Gabung semua APK
     needs: bina
-    if: always()
+    if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
@@ -108,9 +109,10 @@ jobs:
           path: semua
           merge-multiple: true
 
-      - run: ls -l semua
+      - run: ls -l semua || echo "::warning::Tiada APK - lihat job bijak / intelek / intelekpro / iqra-junior untuk punca"
 
       - uses: actions/upload-artifact@v4
         with:
           name: ProKuiz-SEMUA-b${{ github.run_number }}
           path: semua/
+          if-no-files-found: warn
