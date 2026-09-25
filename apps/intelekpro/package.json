@@ -1,15 +1,13 @@
 {
-  "name": "prokuiz-intelekpro-tv",
+  "name": "prokuiz-intelekpro",
   "version": "1.0.0",
   "private": true,
-  "description": "ProKuiz IntelekPro TV - kuiz Tingkatan 4 dan 5 (KSSM) untuk Android TV",
+  "description": "ProKuiz IntelekPro - kuiz Tingkatan 4 dan 5 (KSSM)",
   "prokuiz": {
-    "mic": false,
-    "tv": true
+    "mic": false
   },
   "dependencies": {
     "@capacitor/android": "^8.0.0",
-    "@capacitor/app": "^8.0.0",
     "@capacitor/core": "^8.0.0"
   },
   "devDependencies": {

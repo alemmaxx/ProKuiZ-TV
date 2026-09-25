@@ -305,6 +305,54 @@
   .gate .err{color:var(--bad); font-weight:700; min-height:1.3em; margin:0}
   .gate.shake .card{animation:shake .4s}
   body.locked .wrap{visibility:hidden}
+
+  /* ===== Susunan slaid: dua lajur di skrin landskap rendah, satu lajur di telefon ===== */
+  .sl-l, .sl-r{display:contents}
+  .slide .opts, .slide #traceHost{order:1}
+  .slide .why{order:2}
+  .slide .feedback{order:3}
+  .slide .exwrap{order:4}
+  /* ===== Skrin landskap rendah (TV, TV box, tablet/laptop melintang): soalan muat satu skrin ===== */
+  @media (orientation: landscape) and (min-width:700px) and (max-height:820px){
+    body[data-screen="quiz"] .bar{display:none}
+    body[data-screen="quiz"] .wrap{max-width:1500px; padding:1.6vh 2.5vw 1.2vh}
+    body[data-screen="quiz"] #quiz{height:calc(100vh - 2.8vh); display:flex; flex-direction:column}
+    #quiz .qhead{grid-template-columns:auto minmax(0,1fr); gap:.8vh 2vw; margin-bottom:1.2vh; align-items:center}
+    #quiz .qmeta{grid-column:1; grid-row:1; flex-wrap:nowrap}
+    #quiz .dots{grid-column:2; grid-row:1; justify-content:flex-end}
+    #quiz .timebar{grid-column:1 / -1; grid-row:2; height:max(6px,1vh)}
+    #quiz .tag, #quiz .clock{font-size:clamp(13px,2.6vh,22px)}
+    #quiz .dots span{width:clamp(22px,4.4vh,36px); height:clamp(22px,4.4vh,36px); font-size:clamp(11px,2.2vh,17px)}
+    #slideHost{flex:1; min-height:0}
+    #slideHost .slide{height:100%; padding:2vh 2vw; gap:0 2.6vw; grid-template-columns:minmax(0,1fr) minmax(0,1.15fr); grid-template-rows:minmax(0,1fr); align-items:stretch; overflow:hidden}
+    #slideHost .sl-l, #slideHost .sl-r{display:flex; flex-direction:column; gap:1.6vh; min-height:0; overflow:auto}
+    #slideHost .sl-l{justify-content:flex-start}
+    #slideHost .sl-r{justify-content:center}
+    #slideHost .opts{grid-template-columns:1fr 1fr; gap:1.6vh 1.2vw}
+    #slideHost .opts.long{grid-template-columns:1fr; gap:1.2vh}
+    #slideHost .qnum{font-size:clamp(13px,2.6vh,22px)}
+    #slideHost .qtext{font-size:clamp(17px,5vh,44px)}
+    #slideHost .ghint{font-size:clamp(12px,2.4vh,20px); margin-top:0}
+    #slideHost .pic{font-size:clamp(28px,8vh,72px); padding:1vh}
+    #slideHost .pic.big{font-size:clamp(40px,13vh,120px)}
+    #slideHost .pic.txt{font-size:clamp(22px,6vh,56px)}
+    #slideHost .pic.jwp{font-size:clamp(40px,12vh,110px); line-height:1.35}
+    #slideHost .opt{min-height:clamp(44px,12.5vh,120px); font-size:clamp(15px,4vh,36px); padding:.8vh 1vw; gap:1vw}
+    #slideHost .opts.long .opt{min-height:clamp(38px,9vh,96px); font-size:clamp(13px,3.2vh,28px)}
+    #slideHost .opt .k{width:clamp(24px,5vh,46px); height:clamp(24px,5vh,46px); font-size:clamp(13px,2.6vh,22px)}
+    #slideHost .opt .jw{font-size:clamp(22px,6.5vh,56px)}
+    #slideHost .feedback{min-height:0; gap:1vw}
+    #slideHost .fb-msg{font-size:clamp(15px,3.4vh,30px)}
+    #slideHost .btn{font-size:clamp(14px,3vh,26px); padding:.9vh 1.8vw}
+    #slideHost .why{font-size:clamp(13px,2.6vh,22px)}
+    #slideHost .ex{font-size:clamp(13px,2.6vh,22px)}
+    #slideHost .padbtn{font-size:clamp(12px,2.4vh,20px)}
+    #slideHost .spk{width:clamp(30px,6vh,52px); height:clamp(30px,6vh,52px)}
+    #quiz .quitrow{margin-top:1vh}
+    #quiz #quitBtn{font-size:clamp(12px,2.4vh,20px)!important; padding:.6vh 1.2vw!important}
+  }
+  /* TV: tiada conteng, surih, tulis dengan pen atau rakam suara */
+  .tv .padbtn, .tv #padHost, .tv #eModes [data-m="pen"], .tv #voiceOpen{display:none!important}
 </style>
 
 <div class="gate" id="gate" hidden>
@@ -532,7 +580,16 @@ const META = {
   ps:{name:"PKSK Simulasi A+B", color:"#1F2A44"},
   pc:{name:"PKSK Esei", color:"#8A5A2B"}
 };
-const YEAR_SUBJ = y => APP.subjects[y] || [];
+// TV / TV box: tiada skrin sentuh (hanya alat kawalan jauh) -> sembunyi conteng, surih & rakam suara
+const IS_TV = (() => { try{
+  if(/[?&]tv=1\b/.test(location.search) || localStorage.getItem("kp-tv") === "1") return true;
+  if(/[?&]tv=0\b/.test(location.search) || localStorage.getItem("kp-tv") === "0") return false;
+  if(/ProKuizTV/.test(navigator.userAgent)) return true;
+  if(/\b(Android TV|GoogleTV|Google TV|SMART-TV|SmartTV|BRAVIA|AFT[A-Z]*|Mi ?Box|TV ?Box|HbbTV|Tizen|webOS)\b/i.test(navigator.userAgent)) return true;
+  return !matchMedia("(any-pointer: fine), (any-pointer: coarse)").matches;
+}catch(e){ return false; } })();
+if(IS_TV) document.documentElement.classList.add("tv");
+const YEAR_SUBJ = y => (APP.subjects[y] || []).filter(k => !(IS_TV && BANK[y][k] && BANK[y][k][0] && BANK[y][k][0].trace));
 const yearLabel = y => y === 0 ? (LANG === "en" ? "Preschool" : "Prasekolah") : `${LANG === "en" ? APP.unit.en : APP.unit.ms} ${y}`;
 const appSubjectKeys = () => [...new Set([...APP.levels.flatMap(y => APP.subjects[y]), ...(APP.pksk ? ["pa","pb","ps","pc"] : [])])];
 const subjName = (k, y) => k === "sn" ? (APP.dst && y <= 3 ? (LANG === "en" ? "World of Science & Technology" : "Dunia Sains & Teknologi") : (LANG === "en" ? "Science" : "Sains")) : LANG === "en" && META_EN[k] ? META_EN[k][0] : (META[k] ? META[k].name : k);
@@ -545,7 +602,7 @@ const shuffle = a => { a = a.slice(); for(let i=a.length-1;i>0;i--){const j=Math
 const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const fmt = s => `${Math.floor(s/60)}:${String(s%60).padStart(2,"0")}`;
 const starsFor = n => n>=9?3:n>=6?2:n>=3?1:0;
-function show(id){ ["home","quiz","result","records","pksk","essay","voice"].forEach(s => $(s).hidden = s!==id); try{ stopSay(); }catch(e){} window.scrollTo({top:0}); }
+function show(id){ document.body.dataset.screen = id; ["home","quiz","result","records","pksk","essay","voice"].forEach(s => $(s).hidden = s!==id); try{ stopSay(); }catch(e){} window.scrollTo({top:0}); }
 function lsGet(k,d){ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):d; }catch(e){ return d; } }
 function lsSet(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
 /* ---------- dwibahasa / bilingual ---------- */
@@ -1072,16 +1129,17 @@ function renderQ(){
   const lockP = q.lk && q.picked == null, sayP = AUD && q.sp;
   const pic = q.pic ? `<div class="pic${q.big?" big":""}${q.txt?" txt":""}${q.pj?" jwp":""}${sayP?" say":""}${sayP&&lockP?" lock":""}"${sayP?' data-s="p"':""} aria-hidden="${q.txt||q.pj?"false":"true"}">${sayP?spkBtn("p"):""}${esc(q.pic)}</div>` : "";
   const lockO = q.lo && q.picked == null ? " lock" : "";
-  $("slideHost").innerHTML = `<div class="slide">
+  $("slideHost").innerHTML = `<div class="slide"><div class="sl-l">
     <div class="qrow"><div class="qnum">${L("Soalan {i} daripada {n}", {i:S.i+1, n:S.n})}${q.d?`<span class="dtag">${esc(q.d)}</span>`:""}</div><button class="padbtn" id="padBtn" type="button" aria-pressed="${padOpen}">${PENSVG}${L("Conteng")}</button></div>
     <div class="qtext">${spkBtn("q")}${esc(q.q)}</div>${q.g?`<div class="ghint">${L("Pilih tindakan yang paling sesuai. Setiap pilihan ada markah 1 hingga 4.")}</div>`:""}${pic}
     <div id="padHost"${padOpen?"":" hidden"}></div>
+    <div class="why" id="why" hidden></div>
+    <div class="exwrap" id="exWrap" hidden><button class="btn ghost exbtn" id="exBtn" type="button" aria-expanded="false"></button><div class="ex" id="exBox" hidden></div></div>
+    </div><div class="sl-r">
     <div class="opts${q.g||q.o.some(o=>o.length>28)?" long":""}">${q.shown.map((o,j)=>{ const bt = `<button class="opt" type="button" data-v="${esc(o)}"><span class="k">${KEYS[j]}</span><span${q.jw?' class="jw"':""}>${esc(o)}</span></button>`;
       return AUD ? `<div class="optw">${bt}${spkBtn("o", ` data-v="${esc(o)}"`, lockO)}</div>` : bt; }).join("")}</div>
-    <div class="why" id="why" hidden></div>
     <div class="feedback"><span class="fb-msg" id="fb"></span><span id="nextSlot"></span></div>
-    <div class="exwrap" id="exWrap" hidden><button class="btn ghost exbtn" id="exBtn" type="button" aria-expanded="false"></button><div class="ex" id="exBox" hidden></div></div>
-  </div>`;
+  </div></div>`;
   $("slideHost").querySelector(".opts").addEventListener("click", onPick);
   qPad = null; if(padOpen) mountQPad(q);
   $("padBtn").onclick = () => {
@@ -1090,12 +1148,12 @@ function renderQ(){
   };
 }
 function renderTrace(q){
-  $("slideHost").innerHTML = `<div class="slide">
+  $("slideHost").innerHTML = `<div class="slide"><div class="sl-l">
     <div class="qnum">${L("Aktiviti {i} daripada {n}", {i:S.i+1, n:S.n})}</div>
     <div class="qtext">${q.sp?spkBtn("t"):""}${esc(q.q)}</div>
     <div class="ghint">${L("Surih di atas garis putus-putus dengan jari atau pen. Tekan Semak bila siap.")}</div>
-    <div id="traceHost"></div>
     <div class="feedback"><span class="fb-msg" id="fb"></span><span id="nextSlot" style="display:flex; gap:8px; flex-wrap:wrap"><button class="btn ghost" id="checkBtn" type="button">${L("Semak")}</button></span></div>
+    </div><div class="sl-r"><div id="traceHost"></div></div>
   </div>`;
   q.sketch = q.sketch || [];
   const pad = makePad($("traceHost"), { height:300, strokes:q.sketch, style:"grid", guide:q.trace });

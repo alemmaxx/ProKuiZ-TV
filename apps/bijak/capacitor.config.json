@@ -1,8 +1,6 @@
 {
-  "appId": "com.prokuiz.bijak.tv",
-  "appName": "ProKuiz Bijak TV",
+  "appId": "com.prokuiz.bijak",
+  "appName": "ProKuiz Bijak",
   "webDir": "www",
-  "android": {
-    "backgroundColor": "#FFF3C9"
-  }
+  "android": { "backgroundColor": "#FFF3C9" }
 }

@@ -1,0 +1,48 @@
+PROKUIZ SEMUA - SATU REPO, BINA 4 APP SEKALI GUS
+================================================
+
+Satu repo GitHub ini membina KEEMPAT-EMPAT app serentak:
+  ProKuiz Bijak, ProKuiz Intelek, ProKuiz IntelekPro, ProKuiz Iqra Junior
+Setiap app dapat APK TELEFON + APK TV. Jumlah: 8 APK dalam satu muat turun.
+
+ISI FOLDER
+  apps/bijak/ ........... www (app), assets (ikon, banner TV), tetapan app
+  apps/intelek/
+  apps/intelekpro/
+  apps/iqra-junior/
+  scripts/ .............. skrip bina (dikongsi semua app)
+  .github/workflows/main.yml ... arahan bina untuk GitHub
+
+CARA MULA (sekali sahaja)
+ 1. GitHub > "+" > New repository. Nama: prokuiz-semua. Create repository.
+ 2. Tekan "uploading an existing file". Seret SEMUA isi folder ProKuiz-Semua
+    (apps, scripts, .github, .npmrc, .gitignore, BACA DULU.txt) > Commit changes.
+    Kalau folder .github tidak ikut ter-upload: Add file > Create new file,
+    nama ".github/workflows/main.yml", tampal isi fail main.yml, Commit.
+ 3. (DISYORKAN) Masukkan kunci tandatangan supaya APK guna kunci tetap:
+    Settings > Secrets and variables > Actions > New repository secret
+      KEYSTORE_BASE64    = isi fail KEYSTORE_BASE64.txt (folder kunci dalam zip Jual-Terus)
+      KEYSTORE_PASSWORD  = isi fail KEYSTORE_PASSWORD.txt
+    Tanpa kunci pun boleh bina (APK debug), tetapi pembeli perlu uninstall
+    setiap kali ada versi baru. Dengan kunci: update terus tanpa uninstall.
+ 4. Tab Actions > "Bina semua app ProKuiz" berjalan sendiri (lebih kurang 10 minit,
+    4 app dibina serentak). Kalau tidak berjalan: pilih workflow > Run workflow.
+
+MUAT TURUN
+  Klik proses yang bertanda hijau > Artifacts > "ProKuiz-SEMUA-b1" (b1 = binaan ke-1).
+  Di dalamnya:
+    ProKuiz-Bijak-v1.0.0-b1.apk           ProKuiz-Bijak-v1.0.0-b1-TV.apk
+    ProKuiz-Intelek-v1.0.0-b1.apk         ProKuiz-Intelek-v1.0.0-b1-TV.apk
+    ProKuiz-IntelekPro-v1.0.0-b1.apk      ProKuiz-IntelekPro-v1.0.0-b1-TV.apk
+    ProKuiz-Iqra-Junior-v1.0.0-b1.apk     ProKuiz-Iqra-Junior-v1.0.0-b1-TV.apk
+    (+ fail -PlayStore.aab jika kunci dimasukkan; abaikan jika tidak guna Play Store)
+  Setiap app juga ada Artifacts sendiri jika hanya mahu satu.
+
+KEMAS KINI APP
+  Upload www/index.html baru ke folder app yang berkenaan sahaja, contohnya
+  apps/iqra-junior/www/index.html. GitHub akan bina semula semua 4 app.
+
+NOTA
+ - Repo lama (4 repo berasingan) boleh dibiarkan atau dipadam selepas repo ini berjaya.
+ - ID app sama seperti sebelum ini (com.prokuiz.bijak dll.). Versi TV: ...tv.
+ - Kali pertama guna kunci, pembeli yang ada APK lama (debug) perlu uninstall sekali.

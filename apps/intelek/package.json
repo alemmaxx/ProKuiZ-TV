@@ -1,15 +1,13 @@
 {
-  "name": "prokuiz-intelek-tv",
+  "name": "prokuiz-intelek",
   "version": "1.0.0",
   "private": true,
-  "description": "ProKuiz Intelek TV - kuiz Tingkatan 1 hingga 3 (KSSM) untuk Android TV",
+  "description": "ProKuiz Intelek - kuiz Tingkatan 1 hingga 3 (KSSM)",
   "prokuiz": {
-    "mic": false,
-    "tv": true
+    "mic": false
   },
   "dependencies": {
     "@capacitor/android": "^8.0.0",
-    "@capacitor/app": "^8.0.0",
     "@capacitor/core": "^8.0.0"
   },
   "devDependencies": {

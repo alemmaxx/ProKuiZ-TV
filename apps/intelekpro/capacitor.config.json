@@ -1,8 +1,6 @@
 {
-  "appId": "com.prokuiz.intelekpro.tv",
-  "appName": "ProKuiz IntelekPro TV",
+  "appId": "com.prokuiz.intelekpro",
+  "appName": "ProKuiz IntelekPro",
   "webDir": "www",
-  "android": {
-    "backgroundColor": "#FFF3C9"
-  }
+  "android": { "backgroundColor": "#FFF3C9" }
 }

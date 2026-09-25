@@ -1,17 +1,15 @@
 {
-  "name": "prokuiz-iqra-junior-tv",
+  "name": "prokuiz-iqra-junior",
   "version": "1.0.0",
   "private": true,
-  "description": "ProKuiz Iqra Junior TV - latihan Iqra 1 hingga 6 untuk Android TV",
+  "description": "ProKuiz Iqra Junior - latihan Iqra 1 hingga 6 untuk prasekolah",
   "prokuiz": {
-    "mic": false,
-    "tv": true
+    "mic": true
   },
   "dependencies": {
-    "@capacitor-community/text-to-speech": "^8.0.0",
     "@capacitor/android": "^8.0.0",
-    "@capacitor/app": "^8.0.0",
-    "@capacitor/core": "^8.0.0"
+    "@capacitor/core": "^8.0.0",
+    "@capacitor-community/text-to-speech": "^8.0.0"
   },
   "devDependencies": {
     "@capacitor/assets": "^3.0.5",
