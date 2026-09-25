@@ -322,7 +322,8 @@
     #quiz .dots{grid-column:2; grid-row:1; justify-content:flex-end}
     #quiz .timebar{grid-column:1 / -1; grid-row:2; height:max(6px,1vh)}
     #quiz .tag, #quiz .clock{font-size:clamp(13px,2.6vh,22px)}
-    #quiz .dots span{width:clamp(22px,4.4vh,36px); height:clamp(22px,4.4vh,36px); font-size:clamp(11px,2.2vh,17px)}
+    #quiz .dots span, #quiz .dots button.dot{width:clamp(22px,4.4vh,36px); height:clamp(22px,4.4vh,36px); font-size:clamp(11px,2.2vh,17px)}
+    #quiz .backbtn{height:clamp(28px,5vh,44px); font-size:clamp(13px,2.6vh,20px)}
     #slideHost{flex:1; min-height:0}
     #slideHost .slide{height:100%; padding:2vh 2vw; gap:0 2.6vw; grid-template-columns:minmax(0,1fr) minmax(0,1.15fr); grid-template-rows:minmax(0,1fr); align-items:stretch; overflow:hidden}
     #slideHost .sl-l, #slideHost .sl-r{display:flex; flex-direction:column; gap:1.6vh; min-height:0; overflow:auto}
@@ -354,7 +355,13 @@
   /* TV: tiada conteng, surih, tulis dengan pen atau rakam suara */
   .tv .padbtn, .tv #padHost, .tv #eModes [data-m="pen"], .tv #voiceOpen{display:none!important}
   .qleft{display:inline-flex; align-items:center; gap:8px; min-width:0}
-  .backbtn{flex:none; width:40px; height:40px; border-radius:50%; border:2px solid var(--ink); background:var(--paper); color:var(--ink); display:grid; place-items:center; padding:0; box-shadow:0 3px 0 var(--ink)}
+  .backbtn{flex:none; height:36px; border-radius:999px; border:2px solid var(--ink); background:var(--paper); color:var(--ink); display:inline-flex; align-items:center; gap:2px; padding:0 12px 0 6px; font-family:var(--display); font-weight:700; font-size:15px; box-shadow:0 3px 0 var(--ink)}
+  .dots button.dot{width:26px; height:26px; border-radius:50%; border:2px solid var(--ink); background:var(--paper); display:grid; place-items:center; font-family:var(--display); font-size:13px; font-weight:600; padding:0; color:var(--ink); cursor:pointer}
+  .dots button.dot:disabled{cursor:default; opacity:1}
+  .dots button.dot.ok{background:var(--good); color:#fff} .dots button.dot.no{background:var(--bad); color:#fff} .dots button.dot.on{background:var(--ink); color:#fff}
+  .dots button.dot.view{box-shadow:0 0 0 3px #FFB800; transform:scale(1.12)}
+  .reviewtag{display:inline-block; margin-left:8px; font-family:var(--display); font-weight:600; font-size:13px; padding:2px 10px; border-radius:999px; background:#FFB800; color:var(--ink)}
+  .slide.review .opt:disabled{cursor:default}
   .backbtn:active{transform:translateY(2px); box-shadow:0 1px 0 var(--ink)}
   .backbtn svg{width:20px; height:20px}
 </style>
@@ -373,7 +380,7 @@
 </div>
 <div class="gate" id="exitDlg" hidden>
   <div class="card" role="dialog" aria-modal="true" aria-labelledby="exitTitle">
-    <h2 id="exitTitle" data-t>Keluar dari app?</h2>
+    <h2 id="exitTitle">Keluar dari app?</h2>
     <div class="pwrow"><button class="btn ghost" id="exitNo" type="button" data-t>Tidak</button><button class="btn" id="exitYes" type="button" data-t>Ya</button></div>
   </div>
 </div>
@@ -421,14 +428,14 @@
   <section id="quiz" hidden>
     <div class="qhead">
       <div class="qmeta">
-        <span class="qleft"><button class="backbtn" id="qBack" type="button" aria-label="Kembali" title="Kembali"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button><span class="tag" id="qSubj">Matematik</span></span>
+        <span class="qleft"><button class="backbtn" id="qBack" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>Back</button><span class="tag" id="qSubj">Matematik</span></span>
         <span class="clock" id="clock"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/></svg><span id="clockTxt">10:00</span></span>
       </div>
       <div class="timebar"><i id="timeFill"></i></div>
       <div class="dots" id="dots"></div>
     </div>
     <div id="slideHost"></div>
-    <div class="quitrow"><button class="btn ghost" id="quitBtn" type="button" data-t style="font-size:16px; padding:8px 14px">Berhenti</button></div>
+    <div class="quitrow" hidden><button class="btn ghost" id="quitBtn" type="button" data-t style="font-size:16px; padding:8px 14px">Berhenti</button></div>
   </section>
 
   <!-- RESULT -->
@@ -847,7 +854,7 @@ async function say(text, lang){  // lang: "ar" atau "ui"
 // butang pembesar suara dalam slaid soalan
 function onSpk(e){
   const b = e.target.closest("[data-s]"); if(!b || !S) return;
-  e.stopPropagation(); const q = S.qs[S.i], kind = b.dataset.s;
+  e.stopPropagation(); const q = S.qs[S.v ?? S.i], kind = b.dataset.s;
   if(kind === "q") return say(q.q, "ui");
   if(kind === "t") return say(q.sp, "ar");
   if(kind === "p"){ if(q.lk && q.picked == null){ toast(L("Jawab dahulu, kemudian dengar sebutannya.")); return; } return say(q.sp, "ar"); }
@@ -1126,7 +1133,9 @@ function tick(){
 }
 function renderDots(){
   if(S.n <= 20){
-    $("dots").innerHTML = S.qs.map((_,i) => `<span class="${S.marks[i]===true?"ok":S.marks[i]===false?"no":i===S.i?"on":""}">${i+1}</span>`).join("");
+    const v = S.v ?? S.i, nav = !S.exam;
+    $("dots").innerHTML = S.qs.map((q,i) => { const done = S.marks[i] !== undefined, cls = `${S.marks[i]===true?"ok":S.marks[i]===false?"no":i===S.i?"on":""}${nav && i===v && (done || v!==S.i)?" view":""}`;
+      return nav ? `<button class="dot ${cls}" type="button" data-j="${i}"${done || i===S.i ? "" : " disabled"} aria-label="${L("Soalan {i} daripada {n}", {i:i+1, n:S.n})}">${i+1}</button>` : `<span class="${cls}">${i+1}</span>`; }).join("");
   } else {
     const answered = S.qs.filter(q => q.picked != null).length;
     const part = L(S.qs[S.i].g ? "Bahagian A" : "Bahagian B");
@@ -1134,13 +1143,15 @@ function renderDots(){
   }
 }
 function renderQ(){
-  const q = S.qs[S.i]; renderDots(); if(AUD) stopSay();
-  if(q.trace) return renderTrace(q);
+  if(S._lastI !== S.i){ S._lastI = S.i; S.v = S.i; }
+  const idx = S.v ?? S.i, review = idx !== S.i;
+  const q = S.qs[idx]; renderDots(); if(AUD) stopSay();
+  if(q.trace) return renderTrace(q, idx, review);
   const lockP = q.lk && q.picked == null, sayP = AUD && q.sp;
   const pic = q.pic ? `<div class="pic${q.big?" big":""}${q.txt?" txt":""}${q.pj?" jwp":""}${sayP?" say":""}${sayP&&lockP?" lock":""}"${sayP?' data-s="p"':""} aria-hidden="${q.txt||q.pj?"false":"true"}">${sayP?spkBtn("p"):""}${esc(q.pic)}</div>` : "";
   const lockO = q.lo && q.picked == null ? " lock" : "";
   $("slideHost").innerHTML = `<div class="slide"><div class="sl-l">
-    <div class="qrow"><div class="qnum">${L("Soalan {i} daripada {n}", {i:S.i+1, n:S.n})}${q.d?`<span class="dtag">${esc(q.d)}</span>`:""}</div><button class="padbtn" id="padBtn" type="button" aria-pressed="${padOpen}">${PENSVG}${L("Conteng")}</button></div>
+    <div class="qrow"><div class="qnum">${L("Soalan {i} daripada {n}", {i:idx+1, n:S.n})}${review?`<span class="reviewtag">${L("Lihat semula")}</span>`:""}${q.d?`<span class="dtag">${esc(q.d)}</span>`:""}</div><button class="padbtn" id="padBtn" type="button" aria-pressed="${padOpen}">${PENSVG}${L("Conteng")}</button></div>
     <div class="qtext">${spkBtn("q")}${esc(q.q)}</div>${q.g?`<div class="ghint">${L("Pilih tindakan yang paling sesuai. Setiap pilihan ada markah 1 hingga 4.")}</div>`:""}${pic}
     <div id="padHost"${padOpen?"":" hidden"}></div>
     <div class="why" id="why" hidden></div>
@@ -1151,15 +1162,17 @@ function renderQ(){
     <div class="feedback"><span class="fb-msg" id="fb"></span><span id="nextSlot"></span></div>
   </div></div>`;
   $("slideHost").querySelector(".opts").addEventListener("click", onPick);
+  if(review) $("slideHost").querySelector(".slide").classList.add("review");
+  if(q.picked != null && !S.exam){ paintAnswered(q, idx, false); if(review) showBackToCurrent(); else showNext(); }
   qPad = null; if(padOpen) mountQPad(q);
   $("padBtn").onclick = () => {
     padOpen = !padOpen; lsSet("kp-pad", padOpen); $("padBtn").setAttribute("aria-pressed", padOpen);
     $("padHost").hidden = !padOpen; if(padOpen && !qPad) mountQPad(q); sfx.tap();
   };
 }
-function renderTrace(q){
+function renderTrace(q, idx = S.i, review = false){
   $("slideHost").innerHTML = `<div class="slide"><div class="sl-l">
-    <div class="qnum">${L("Aktiviti {i} daripada {n}", {i:S.i+1, n:S.n})}</div>
+    <div class="qnum">${L("Aktiviti {i} daripada {n}", {i:idx+1, n:S.n})}${review?`<span class="reviewtag">${L("Lihat semula")}</span>`:""}</div>
     <div class="qtext">${q.sp?spkBtn("t"):""}${esc(q.q)}</div>
     <div class="ghint">${L("Surih di atas garis putus-putus dengan jari atau pen. Tekan Semak bila siap.")}</div>
     <div class="feedback"><span class="fb-msg" id="fb"></span><span id="nextSlot" style="display:flex; gap:8px; flex-wrap:wrap"><button class="btn ghost" id="checkBtn" type="button">${L("Semak")}</button></span></div>
@@ -1167,6 +1180,7 @@ function renderTrace(q){
   </div>`;
   q.sketch = q.sketch || [];
   const pad = makePad($("traceHost"), { height:300, strokes:q.sketch, style:"grid", guide:q.trace });
+  if(review){ $("traceHost").style.pointerEvents = "none"; const fb = $("fb"); fb.className = "fb-msg " + (q.tok ? "ok" : "no"); fb.textContent = L(q.tok ? "Cantik! Hebat!" : "Cuba ikut garis dengan lebih kemas."); $("nextSlot").innerHTML = ""; showBackToCurrent(); return; }
   $("checkBtn").onclick = () => {
     const r = pad.score(), fb = $("fb");
     if(!r){ fb.className = "fb-msg no"; fb.textContent = L("Surih huruf itu dahulu."); sfx.no(); return; }
@@ -1192,6 +1206,7 @@ function showNext(){
 }
 function onPick(e){
   const b = e.target.closest(".opt"); if(!b || S.done) return;
+  if((S.v ?? S.i) !== S.i) return;
   const q = S.qs[S.i];
   if(S.exam){
     q.picked = b.dataset.v; sfx.tap();
@@ -1201,18 +1216,26 @@ function onPick(e){
   }
   if(q.picked != null) return;
   q.picked = b.dataset.v;
-  const p = pts(q), best = p === maxPts(q), right = q.o[0];
+  const p = pts(q), best = p === maxPts(q);
   S.marks[S.i] = q.g ? p >= 3 : best;
+  paintAnswered(q, S.i, true);
+  best ? sfx.ok() : sfx.no();
+  if(AUD) sayAnswer(q);
+  renderDots(); showNext(); $("nextBtn").focus();
+}
+// tunjuk keadaan soalan yang sudah dijawab (semasa menjawab atau semasa lihat semula)
+function paintAnswered(q, idx, fresh){
+  const p = pts(q), best = p === maxPts(q), right = q.o[0];
   $("slideHost").querySelectorAll(".opt").forEach(x => {
     x.disabled = true;
     if(x.dataset.v === right) x.classList.add("ok");
-    else if(x === b) x.classList.add(q.g && p >= 2 ? "mid" : "no");
+    else if(x.dataset.v === q.picked) x.classList.add(q.g && p >= 2 ? "mid" : "no");
     else x.classList.add("dim");
   });
   const fb = $("fb");
   fb.className = "fb-msg " + (best ? "ok" : q.g && p >= 2 ? "mid" : "no");
   if(q.g) fb.textContent = best ? L("Tindakan terbaik! +4") : L("+{p} markah. Tindakan terbaik ditanda hijau.", {p});
-  else fb.innerHTML = best ? L(["Betul! Hebat!","Bagus!","Pandai!","Syabas!"][Math.floor(Math.random()*4)]) : L("Jawapan: ") + (q.jw?`<span class="jw">${esc(right)}</span>`:esc(right));
+  else fb.innerHTML = best ? L(fresh ? ["Betul! Hebat!","Bagus!","Pandai!","Syabas!"][Math.floor(Math.random()*4)] : "Betul! Hebat!") : L("Jawapan: ") + (q.jw?`<span class="jw">${esc(right)}</span>`:esc(right));
   if(q.why){ $("why").hidden = false; $("why").textContent = q.why; }
   if(q.x){
     const btn = $("exBtn"), box = $("exBox");
@@ -1220,10 +1243,18 @@ function onPick(e){
     const setOpen = open => { box.hidden = !open; btn.setAttribute("aria-expanded", open); btn.textContent = L(open ? "Tutup penerangan" : "Lihat penerangan"); };
     setOpen(false); btn.onclick = () => { setOpen(box.hidden); sfx.tap(); };
   }
-  best ? sfx.ok() : sfx.no();
-  if(AUD){ $("slideHost").querySelectorAll(".lock").forEach(x => x.classList.remove("lock")); sayAnswer(q); }
-  renderDots(); showNext(); $("nextBtn").focus();
+  if(AUD) $("slideHost").querySelectorAll(".lock").forEach(x => x.classList.remove("lock"));
 }
+function showBackToCurrent(){
+  $("nextSlot").innerHTML = `<button class="btn" id="nextBtn" type="button">${L("Kembali ke soalan {i} →", {i:S.i+1})}</button>`;
+  $("nextBtn").onclick = () => { S.v = S.i; sfx.tap(); renderQ(); window.scrollTo({top:0}); };
+}
+$("dots").addEventListener("click", e => {
+  const b = e.target.closest("button.dot"); if(!b || !S || S.done || S.exam || b.disabled) return;
+  const j = Number(b.dataset.j); if(j === (S.v ?? S.i)) return;
+  S.v = j; sfx.tap(); renderQ(); window.scrollTo({top:0});
+  if(IS_TV) setTimeout(() => { const d = $("dots").querySelector(`[data-j="${j}"]`); if(d) d.focus({ preventScroll:true }); }, 20);
+});
 function confirm2(btn, label, fn){
   if(btn.dataset.confirm){ btn.dataset.confirm=""; btn.textContent=L(label); fn(); return; }
   btn.dataset.confirm = "1"; btn.textContent = L("Tekan sekali lagi untuk berhenti");
@@ -1332,27 +1363,34 @@ $("eDone").onclick = () => {
 $("eQuit").onclick = () => confirm2($("eQuit"), "Berhenti", () => { clearInterval(eTimer); if(E) E.done = true; openPksk(); });
 
 /* ---------- butang Back (Android telefon & TV) ---------- */
-Object.assign(UI_EN, { "Keluar dari app?":"Exit the app?", "Ya":"Yes", "Tidak":"No" });
-let exitReturn = null;
-function askExit(){
-  exitReturn = document.activeElement; $("exitDlg").hidden = false; applyStatic();
+Object.assign(UI_EN, { "Keluar dari app?":"Exit the app?", "Ya":"Yes", "Tidak":"No", "Lihat semula":"Review", "Kembali ke soalan {i} →":"Back to question {i} →",
+  "Kembali ke skrin utama? Jawapan kuiz ini tidak akan disimpan.":"Go back to the home screen? Answers from this quiz will not be saved.",
+  "Kembali ke menu PKSK? Jawapan ujian ini tidak akan disimpan.":"Go back to the PKSK menu? Answers from this test will not be saved." });
+let exitReturn = null, dlgYes = null;
+function askConfirm(text, onYes){
+  exitReturn = document.activeElement; dlgYes = onYes; applyStatic();
+  $("exitTitle").textContent = text; $("exitDlg").hidden = false;
   setTimeout(() => $("exitNo").focus(), 30);
+}
+function askExit(){ askConfirm(L("Keluar dari app?"), () => { const C = window.Capacitor; if(C && typeof C.nativePromise === "function") C.nativePromise("App", "exitApp", {}).catch(() => {}); }); }
+function leaveQuiz(){
+  if(S && !S.done){ S.done = true; clearInterval(timerId); }
+  try{ stopSay(); }catch(e){}
+  if(S && S.back === "pksk") openPksk(); else { renderHome(); show("home"); }
+  sfx.tap();
+  setTimeout(() => { const f = document.querySelector("section:not([hidden]) .subj, section:not([hidden]) button"); if(IS_TV && f) f.focus({ preventScroll:true }); }, 30);
 }
 function closeExit(){ $("exitDlg").hidden = true; if(exitReturn && exitReturn.focus) try{ exitReturn.focus({ preventScroll:true }); }catch(e){} }
 $("exitNo").onclick = () => { closeExit(); sfx.tap(); };
-$("exitYes").onclick = () => {
-  const C = window.Capacitor;
-  if(C && typeof C.nativePromise === "function") C.nativePromise("App", "exitApp", {}).catch(() => {});
-  closeExit();
-};
+$("exitYes").onclick = () => { const f = dlgYes; dlgYes = null; exitReturn = null; $("exitDlg").hidden = true; if(f) f(); };
 function appBack(){
   if(!$("exitDlg").hidden){ closeExit(); return; }
   try{ stopSay(); }catch(e){}
   const scr = document.body.dataset.screen || "home";
   if(!$("gate").hidden || scr === "home") return askExit();
   if(scr === "quiz"){
-    if(S && !S.done){ S.done = true; clearInterval(timerId); }
-    if(S && S.back === "pksk") openPksk(); else { renderHome(); show("home"); }
+    if(S && !S.done) return askConfirm(L(S.back === "pksk" ? "Kembali ke menu PKSK? Jawapan ujian ini tidak akan disimpan." : "Kembali ke skrin utama? Jawapan kuiz ini tidak akan disimpan."), leaveQuiz);
+    leaveQuiz(); return;
   }
   else if(scr === "result") $("homeBtn").click();
   else if(scr === "records") $("recBack").click();
