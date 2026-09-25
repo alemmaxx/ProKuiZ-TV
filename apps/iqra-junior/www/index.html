@@ -996,7 +996,9 @@ function renderHome(){
     : grid(list);
   $("subjTitle").textContent = year === 0 ? L("Pilih aktiviti Prasekolah (sedia ke Tahun 1)") : L(APP.unit.pick, {y:year});
 }
-$("years").addEventListener("click", e => { const b = e.target.closest(".ychip"); if(!b) return; year = Number(b.dataset.y); lsSet("kp-year", year); sfx.tap(); renderHome(); });
+$("years").addEventListener("click", e => { const b = e.target.closest(".ychip"); if(!b) return; year = Number(b.dataset.y); lsSet("kp-year", year); sfx.tap(); renderHome();
+  // TV: selepas pilih tahun/tingkatan, bawa kursor terus ke subjek pertama
+  if(IS_TV){ const f = $("subjects").querySelector(".subj"); if(f){ f.focus({ preventScroll:true }); f.scrollIntoView({ block:"nearest" }); } } });
 renderHome(); applyStatic();
 $("subjects").addEventListener("click", e => {
   const b = e.target.closest(".subj"); if(!b) return;
@@ -1204,6 +1206,11 @@ function renderQ(){
   $("slideHost").querySelector(".opts").addEventListener("click", onPick);
   if(review) $("slideHost").querySelector(".slide").classList.add("review");
   if(q.picked != null && !S.exam){ paintAnswered(q, idx, false); if(review) showBackToCurrent(); else showNext(); }
+  // TV: kursor terus pada jawapan pertama (atau butang seterusnya jika sudah dijawab)
+  if(IS_TV && !(document.activeElement && document.activeElement.classList.contains("dot"))){
+    const f = (q.picked != null && !S.exam) ? $("nextBtn") : $("slideHost").querySelector(".opt");
+    if(f) setTimeout(() => f.focus({ preventScroll:true }), 0);
+  }
   qPad = null; if(padOpen) mountQPad(q);
   $("padBtn").onclick = () => {
     padOpen = !padOpen; lsSet("kp-pad", padOpen); $("padBtn").setAttribute("aria-pressed", padOpen);
