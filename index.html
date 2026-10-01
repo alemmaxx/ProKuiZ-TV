@@ -5,56 +5,62 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ProKuiZ</title>
 <style>
-:root{--bg:#1b1464;--ink:#fff}
 *{box-sizing:border-box}
-body{margin:0;min-height:100vh;background:var(--bg);color:var(--ink);font-family:"Trebuchet MS",Verdana,sans-serif;padding:clamp(16px,4vw,48px)}
-h1{margin:0 0 4px;font-size:clamp(2rem,6vw,3.5rem);letter-spacing:.5px}
-p.sub{margin:0 0 28px;opacity:.8;font-size:1.1rem}
-.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;max-width:1100px}
-@media(max-width:640px){.grid{grid-template-columns:1fr}}
-.card{border-radius:24px;padding:28px;display:flex;flex-direction:column;gap:18px;min-height:220px;color:#14103a}
-.card h2{margin:0;font-size:clamp(1.6rem,4vw,2.4rem)}
-.card .btns{display:flex;flex-wrap:wrap;gap:12px;margin-top:auto}
-.btn{font:inherit;font-weight:700;font-size:1.1rem;text-decoration:none;padding:14px 22px;border-radius:14px;border:3px solid #14103a;color:#14103a}
-.btn.main{background:#14103a;color:#fff}
-.btn:hover{transform:translateY(-2px)}
-.btn:focus-visible{outline:5px solid #fff;outline-offset:3px;transform:scale(1.06)}
+html,body{height:100%}
+body{margin:0;height:100dvh;display:flex;flex-direction:column;gap:clamp(8px,1.5vmin,16px);padding:clamp(10px,2vmin,24px);background:#1b1464;color:#fff;font-family:"Trebuchet MS",Verdana,sans-serif}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+h1{margin:0;font-size:clamp(1.6rem,5vmin,3rem);letter-spacing:.5px}
+.kunci{font-size:clamp(.95rem,2.4vmin,1.5rem);background:#ffffff1f;border:2px solid #ffffff55;border-radius:999px;padding:.35em 1em}
+.kunci b{letter-spacing:1px;color:#ffe066}
+.grid{flex:1;min-height:0;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:clamp(10px,2vmin,24px)}
+@media (orientation:portrait){.grid{grid-template-columns:1fr;grid-template-rows:repeat(4,1fr)}}
+.card{position:relative;min-height:0;overflow:hidden;border-radius:clamp(16px,3vmin,32px);padding:clamp(14px,3vmin,36px);display:flex;flex-direction:column;justify-content:space-between;gap:8px;color:#14103a}
+.card:focus-within{outline:6px solid #fff;outline-offset:3px}
+.card h2{margin:0;font-size:clamp(1.8rem,6.5vmin,4.2rem);line-height:1.05}
+.card p{margin:.3em 0 0;font-size:clamp(1rem,3vmin,2rem);font-weight:700;line-height:1.2}
+.btn{align-self:flex-start;font-weight:700;font-size:clamp(.95rem,2.6vmin,1.7rem);text-decoration:none;background:#14103a;color:#fff;padding:.6em 1.1em;border-radius:14px}
+.btn::after{content:"";position:absolute;inset:0}
+.btn:focus-visible{outline:none}
 .bijak{background:#ff5fa8}.intelek{background:#2ed3c4}.intelekpro{background:#ffbf2f}.iqra{background:#5eb4ff}
-@media(prefers-reduced-motion:reduce){.btn:hover,.btn:focus-visible{transform:none}}
 </style>
 </head>
 <body>
-<h1>ProKuiZ</h1>
-<p class="sub">Pilih kuiz anda.</p>
+<header>
+  <h1>ProKuiZ</h1>
+  <div class="kunci">Kata laluan: <b>prokuiz2026</b></div>
+</header>
 
 <main class="grid">
-  <!-- Ubah pautan di sini sahaja -->
   <section class="card bijak">
-    <h2>Bijak</h2>
-    <div class="btns">
-      <a class="btn main" href="./bijak/">Tekan Untuk Meneroka dan Belajar</a>
+    <div>
+      <h2>Bijak</h2>
+      <p>5+ hingga 6 tahun + Persediaan KSSR</p>
     </div>
+    <a class="btn" href="./bijak/">Tekan Untuk Meneroka dan Belajar</a>
   </section>
 
   <section class="card intelek">
-    <h2>Intelek</h2>
-    <div class="btns">
-      <a class="btn main" href="./intelek/">Tekan Untuk Meneroka dan Belajar</a>
+    <div>
+      <h2>Intelek</h2>
+      <p>Tingkatan 1 hingga 3</p>
     </div>
+    <a class="btn" href="./intelek/">Tekan Untuk Meneroka dan Belajar</a>
   </section>
 
   <section class="card intelekpro">
-    <h2>Intelek Pro</h2>
-    <div class="btns">
-      <a class="btn main" href="./intelekpro/">Tekan Untuk Meneroka dan Belajar</a>
+    <div>
+      <h2>Intelek Pro</h2>
+      <p>Tingkatan 4 hingga 5</p>
     </div>
+    <a class="btn" href="./intelekpro/">Tekan Untuk Meneroka dan Belajar</a>
   </section>
 
   <section class="card iqra">
-    <h2>Iqra Junior</h2>
-    <div class="btns">
-      <a class="btn main" href="./iqra-junior/">Tekan Untuk Meneroka dan Belajar</a>
+    <div>
+      <h2>Iqra Junior</h2>
+      <p>Untuk Kanak-Kanak Mengenal Iqra</p>
     </div>
+    <a class="btn" href="./iqra-junior/">Tekan Untuk Meneroka dan Belajar</a>
   </section>
 </main>
 </body>
