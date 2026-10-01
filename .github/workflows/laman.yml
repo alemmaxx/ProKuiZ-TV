@@ -27,10 +27,16 @@ jobs:
         run: |
           mkdir site
           cp index.html site/
-          for a in bijak intelek intelekpro iqra-junior; do
-            mkdir -p site/$a
-            cp apps/$a/www/index.html site/$a/
-          done
+          python3 - <<'PY'
+          import os
+          BUTANG = """<a id="pk-kembali" href="../" style="position:fixed;top:10px;left:10px;z-index:2147483647;background:#14103a;color:#fff;font:700 16px/1 'Trebuchet MS',Verdana,sans-serif;padding:12px 18px;border-radius:12px;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.4)">&#8592; Menu Utama</a>"""
+          for a in ["bijak", "intelek", "intelekpro", "iqra-junior"]:
+              os.makedirs(f"site/{a}", exist_ok=True)
+              s = open(f"apps/{a}/www/index.html", encoding="utf8").read()
+              i = s.lower().rfind("</body>")
+              s = s + BUTANG if i == -1 else s[:i] + BUTANG + s[i:]
+              open(f"site/{a}/index.html", "w", encoding="utf8").write(s)
+          PY
 
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
